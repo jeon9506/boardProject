@@ -2,6 +2,7 @@ package com.basic.board.domain;
 
 import com.basic.board.dto.BoardDto;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
@@ -34,9 +35,12 @@ public class Board extends Timestamped {
 
     public BoardDto toDto() {
         return BoardDto.builder()
+                .board_id(this.board_id)
                 .board_title(this.board_title)
                 .user_name(this.user_name)
                 .board_contents(this.board_contents)
+                .createAt(this.getCreateAt())
+                .modifiedAt(this.getModifiedAt())
                 .build();
     }
 

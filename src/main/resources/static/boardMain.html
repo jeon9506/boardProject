@@ -4,9 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline Service</title>
+    <title>개발 게시판</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500&display=swap" rel="stylesheet">
 
     <style>
@@ -49,7 +52,7 @@
             top: 0px;
             width: 100%;
             height: 428px;
-            background-color: #339af0;
+            background-color: black;
         }
 
         .background-body {
@@ -62,7 +65,7 @@
         }
 
         .header {
-            margin-top: 50px;
+            margin-top: 30px;
         }
 
         .header h2 {
@@ -80,7 +83,7 @@
 
         .header p {
             margin: 40px auto;
-            width: 217px;
+            width: 300px;
             height: 48px;
             font-family: 'Noto Sans KR', sans-serif;
             font-size: 16px;
@@ -94,7 +97,7 @@
         }
 
         textarea.field {
-            width: 502px !important;
+            width: 538px !important;
             height: 146px;
             border-radius: 5px;
             background-color: #ffffff;
@@ -104,7 +107,7 @@
         }
 
         textarea.field::placeholder {
-            width: 216px;
+            width: 300px;
             height: 16px;
             font-family: 'Noto Sans KR', sans-serif;
             font-size: 16px;
@@ -121,7 +124,7 @@
             width: 538px;
             border-radius: 5px;
             background-color: #ffffff;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
         }
 
         .card .metadata {
@@ -202,7 +205,7 @@
         }
 
         #cards-box {
-            margin-top: 12px;
+            margin-top: 50px;
         }
     </style>
     <script>
@@ -242,6 +245,8 @@
         }
 
         function showEdits(id) {
+            $(`#${id}-title`).attr('readonly', false);
+            $(`#${id}-username`).attr('readonly', false);
             $(`#${id}-editarea`).show();
             $(`#${id}-submit`).show();
             $(`#${id}-delete`).show();
@@ -251,6 +256,8 @@
         }
 
         function hideEdits(id) {
+            $(`#${id}-title`).attr('readonly', true);
+            $(`#${id}-username`).attr('readonly', true);
             $(`#${id}-editarea`).hide();
             $(`#${id}-submit`).hide();
             $(`#${id}-delete`).hide();
@@ -267,39 +274,50 @@
             getMessages();
         })
 
-        // 메모를 불러와서 보여줍니다.
+        // 게시판를 불러와서 보여줍니다.
         function getMessages() {
-            // 1. 기존 메모 내용을 지웁니다.
+            alert("전체조회!!!")
+            // 1. 기존 게시판 내용을 지웁니다.
             $('#cards-box').empty();
-            // 2. 메모 목록을 불러와서 HTML로 붙입니다.
+            // 2. 게시판 목록을 불러와서 HTML로 붙입니다.
             $.ajax({
                 type: 'GET',
                 url: '/api/board',
                 success: function (response) {
                     for (let i = 0; i < response.length; i++) {
                         let message = response[i];
-                        let id = message['id'];
-                        let username = message['username'];
-                        let contents = message['contents'];
-                        let modifiedAt = message['modifiedAt'];
-                        addHTML(id, username, contents, modifiedAt);
+                        let id = message['board_id'];
+                        let title = message['board_title'];
+                        let username = message['user_name'];
+                        let contents = message['board_contents'];
+                        let createAt = message['create_at'];
+                        let modifiedAt = message['modified_at'];
+                        addHTML(id, title, username, contents, createAt, modifiedAt);
+                        hideEdits(id);
                     }
                 }
             })
         }
 
-        // 메모 하나를 HTML로 만들어서 body 태그 내 원하는 곳에 붙입니다.
-        function addHTML(id, username, contents, modifiedAt) {
+        // 게시판 하나를 HTML로 만들어서 body 태그 내 원하는 곳에 붙입니다.
+        function addHTML(id, title, username, contents, createAt, modifiedAt) {
             // 1. HTML 태그를 만듭니다.
             let tempHtml = `
+                <form class="row g-3">
+                    <div class="col-md-6">
+                        <label for="${id}-title" class="title">제목</label>
+                        <input class="form-control" id="${id}-title" value="${title}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="${id}-username" class="title">작성자</label>
+                        <input class="form-control" id="${id}-username" value="${username}">
+                    </div>
+                </form>
                 <div class="card">
                     <!-- date/username 영역 -->
                     <div class="metadata">
                         <div class="date">
-                            ${modifiedAt}
-                        </div>
-                        <div id="${id}-username" class="username">
-                            ${username}
+                            작성날짜 : ${createAt}
                         </div>
                     </div>
                     <!-- contents 조회/수정 영역-->
@@ -313,31 +331,40 @@
                     </div>
                     <!-- 버튼 영역-->
                     <div class="footer">
-                        <img id="${id}-edit" class="icon-start-edit" src="../static/images/edit.png" alt="" onclick="editPost('${id}')">
-                        <img id="${id}-delete" class="icon-delete" src="../static/images/delete.png" alt="" onclick="deleteOne('${id}')">
-                        <img id="${id}-submit" class="icon-end-edit" src="../static/images/done.png" alt="" onclick="submitEdit('${id}')">
+                        <img id="${id}-edit" class="icon-start-edit" src="../images/edit.png" alt="" onclick="editPost('${id}')">
+                        <img id="${id}-delete" class="icon-delete" src="../images/delete.png" alt="" onclick="deleteOne('${id}')">
+                        <img id="${id}-submit" class="icon-end-edit" src="../images/done.png" alt="" onclick="submitEdit('${id}')">
                     </div>
                 </div>`;
             // 2. #cards-box 에 HTML을 붙인다.
             $('#cards-box').append(tempHtml);
         }
 
-        // 메모를 생성합니다.
+        // 게시판를 생성합니다.
         function writePost() {
-            // 1. 작성한 메모를 불러옵니다.
+            // 작성한 게시판를 불러옵니다.
+            let title = $('#title').val();
+            let username = $('#username').val();
             let contents = $('#contents').val();
 
-            // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
+            if (!title) {
+                alert("제목명을 적어주세요!");
+                return;
+            }
+            if (!username) {
+                alert("작성자명을 적어주세요!");
+                return;
+            }
+
+            // 작성한 게시판가 올바른지 isValidContents 함수를 통해 확인합니다.
             if (isValidContents(contents) == false) {
                 return;
             }
-            // 3. genRandomName 함수를 통해 익명의 username을 만듭니다.
-            let username = genRandomName(10);
 
-            // 4. 전달할 data JSON으로 만듭니다.
-            let data = {'username': username, 'contents': contents};
+            // 전달할 data JSON으로 만듭니다.
+            let data = {'board_title': title, 'user_name': username, 'board_contents': contents};
 
-            // 5. POST /api/board 에 data를 전달합니다.
+            // POST /api/board 에 data를 전달합니다.
             $.ajax({
                 type: "POST",
                 url: "/api/board",
@@ -350,36 +377,43 @@
             });
         }
 
-        // 메모를 수정합니다.
+        // 게시판를 수정합니다.
         function submitEdit(id) {
-            // 1. 작성 대상 메모의 username과 contents 를 확인합니다.
-            let username = $(`#${id}-username`).text().trim();
+            // 1. 작성 대상 게시판의 username과 contents 를 확인합니다.
+            let title = $(`#${id}-title`).val().trim();
+            let username = $(`#${id}-username`).val().trim();
             let contents = $(`#${id}-textarea`).val().trim();
 
-            // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
+            if (!title) {
+                alert('제목을 입력해주세요!');
+                return;
+            }
+
+            // 2. 작성한 게시판가 올바른지 isValidContents 함수를 통해 확인합니다.
             if (isValidContents(contents) == false) {
                 return;
             }
 
             // 3. 전달할 data JSON으로 만듭니다.
-            let data = {'username': username, 'contents': contents};
-
+            let data = {'board_title': title, 'user_name': username, 'board_contents': contents};
+debugger
             // 4. PUT /api/board/{id} 에 data를 전달합니다.
             $.ajax({
-                type: "PUT",
+                type: "PATCH",
                 url: `/api/board/${id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (response) {
+                    debugger
                     alert('메시지 변경에 성공하였습니다.');
                     window.location.reload();
                 }
             });
         }
 
-        // 메모를 삭제합니다.
+        // 게시판를 삭제합니다.
         function deleteOne(id) {
-            // 1. DELETE /api/board/{id} 에 요청해서 메모를 삭제합니다.
+            // 1. DELETE /api/board/{id} 에 요청해서 게시판를 삭제합니다.
             $.ajax({
                 type: "DELETE",
                 url: `/api/board/${id}`,
@@ -399,23 +433,33 @@
 <div class="background-body">
 
 </div>
+
 <div class="wrap">
     <div class="header">
-        <h2>Timeline Service</h2>
+        <h2>개발 게시판</h2>
         <p>
-            공유하고 싶은 소식을 입력해주세요.
-            24시간이 지난 뒤에는 사라집니다.
+            공유하고 싶은 개발지식을 입력해주세요.
         </p>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label style="color: #ffffff">제목</label>
+            <input class="form-control" id="title" name="title">
+        </div>
+        <div class="col-md-6">
+            <label style="color: #ffffff">작성자</label>
+            <input class="form-control" id="username" name="username">
+        </div>
     </div>
     <div class="area-write">
         <textarea class="field" placeholder="공유하고 싶은 소식을 입력해주세요" name="contents" id="contents" cols="30"
                   rows="10"></textarea>
-        <!--            <button class="btn btn-danger" onclick="writePost()">작성하기</button>-->
-        <img src="../static/images/send.png" alt="" onclick="writePost()">
+        <img src="../images/send.png" alt="" onclick="writePost()">
     </div>
     <div id="cards-box" class="area-read">
     </div>
 </div>
+
 </body>
 
 </html>
