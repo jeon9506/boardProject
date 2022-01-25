@@ -17,13 +17,13 @@ public class Board extends Timestamped {
     @Column(name = "board_id")
     private Integer board_id;
 
-    @Column(name = "board_title", nullable = false, columnDefinition = "varchar(20)") // 컬럼 값이고 반드시 값이 존재해야 함을 나타냅니다.
+    @Column(name = "board_title", nullable = false, columnDefinition = "varchar(30)") // 컬럼 값이고 반드시 값이 존재해야 함을 나타냅니다.
     private String board_title;
 
-    @Column(name = "user_name", nullable = false, columnDefinition = "varchar(12)")
+    @Column(name = "user_name", nullable = false, columnDefinition = "varchar(20)")
     private String user_name;
 
-    @Column(name = "board_contents", nullable = false, columnDefinition = "varchar(20)")
+    @Column(name = "board_contents", nullable = false, columnDefinition = "varchar(300)")
     private String board_contents;
 
     @Builder // 빌더 패턴

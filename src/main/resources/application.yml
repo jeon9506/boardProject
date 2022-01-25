@@ -6,6 +6,8 @@ spring :
     password : heesung
   thymeleaf:
     cache: false
+    prefix: classpath:templates/
+    suffix: .html
 
   jpa :
     hibernate:

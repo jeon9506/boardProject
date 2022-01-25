@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개발 게시판</title>
+    <title>메인 게시판</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -274,6 +274,13 @@
             getMessages();
         })
 
+        // 상세보기 클릭 시 boardDetail.html 페이지로 이동
+        function boardDetailView(board_id) {
+            alert('상세클릭!!!')
+            var board_id = parseInt(board_id);
+            window.location.href = "board/" + board_id;
+        }
+
         // 게시판를 불러와서 보여줍니다.
         function getMessages() {
             alert("전체조회!!!")
@@ -335,6 +342,7 @@
                         <img id="${id}-delete" class="icon-delete" src="../images/delete.png" alt="" onclick="deleteOne('${id}')">
                         <img id="${id}-submit" class="icon-end-edit" src="../images/done.png" alt="" onclick="submitEdit('${id}')">
                     </div>
+                    <button id="#moveDetail" class="btn btn-primary" type="button" onclick="boardDetailView(${id})">상세보기</button>
                 </div>`;
             // 2. #cards-box 에 HTML을 붙인다.
             $('#cards-box').append(tempHtml);
@@ -396,7 +404,7 @@
 
             // 3. 전달할 data JSON으로 만듭니다.
             let data = {'board_title': title, 'user_name': username, 'board_contents': contents};
-debugger
+
             // 4. PUT /api/board/{id} 에 data를 전달합니다.
             $.ajax({
                 type: "PATCH",
@@ -404,7 +412,6 @@ debugger
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (response) {
-                    debugger
                     alert('메시지 변경에 성공하였습니다.');
                     window.location.reload();
                 }
