@@ -22,3 +22,4 @@ spring :
 logging.level:
   org.hibernate.SQL: debug
   org.apche.coyote.http11: debug
+
